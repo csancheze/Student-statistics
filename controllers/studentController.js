@@ -1,8 +1,12 @@
+const res = require('express/lib/response');
+const {ObjectId} = require('mongoose').Types
 const { Student, Course } = require('../models');
+
 
 // TODO: Create an aggregate function to get the number of students overall
 const headCount = async () =>
   Student.aggregate()
+    .count('studentCount')
     // Your code here
     .then((numberOfStudents) => numberOfStudents);
 
@@ -13,7 +17,13 @@ const grade = async (studentId) =>
       $unwind: '$assignments',
     },
     {
-      // Your code here
+      $match: { _id: ObjectId(studentId)}
+    },
+    {
+      $group: {
+        _id: ObjectId(studentId),
+        overallGrade: { $avg: '$assignments.score'}        
+      },
     },
   ]);
 
